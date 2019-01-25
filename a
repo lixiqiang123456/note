@@ -1,0 +1,73 @@
+#!/bin/bash
+tar -xf lnmp_soft.tar.gz
+cd lnmp_soft
+tar -xf nginx-1.12.2.tar.gz
+cd nginx-1.12.2/
+useradd -s /sbin/nologin    nginx
+yum -y install mariadb  mariadb-server   mariadb-devel   php  php-mysql php-pecl-memcache  gcc  pcre-devel   openssl-devel   zlib-devel
+./configure   --user=nginx    --group=nginx     --with-http_ssl_module    --with-stream    --with-http_stub_status_module  
+make  && make install    > /dev/null 
+echo 'make and make install,please wait'
+cd /root/lnmp_soft/
+yum -y install php-fpm-5.4.16-42.el7.x86_64.rpm 
+#   yum -y install /root/lnmp_soft/libevent-devel-2.0.21-4.el7.x86_64.rpm  
+echo 'ok'
+systemctl restart mariadb   php-fpm memcached
+systemctl enable  mariadb   php-fpm
+echo  'open server'
+#   echo 1 > /usr/local/nginx/html/index.html
+ln /usr/local/nginx/sbin/nginx       /sbin/nginx
+#   ssh-keygen
+cp /root/lnmp_soft/php_scripts/*    /usr/local/nginx/html/
+sed -i '65,68s/#//' /usr/local/nginx/conf/nginx.conf
+sed -i '70,71s/#//' /usr/local/nginx/conf/nginx.conf
+sed -i '70s/fastcgi_params/fastcgi.conf/'  /usr/local/nginx/conf/nginx.conf
+#########################################################################################
+sed -i '20i  fastcgi_buffers 8 16k; \n  fastcgi_buffer_size 32k;  \n fastcgi_connect_timeout 300; \n  fastcgi_send_timeout 300;   \n  fastcgi_read_timeout 300; ' /usr/local/nginx/conf/nginx.conf
+nginx
+cd /root/lnmp_soft/
+yum -y install net-snmp  curl-devel   php-gd php-xml
+yum install php-mbstring-5.4.16-42.el7.x86_64.rpm
+yum -y install php-ldap.x86_64 
+yum install php-bcmath-5.4.16-42.el7.x86_64.rpm  
+yum -y install  net-snmp-devel 
+yum -y install /root/lnmp_soft/libevent-devel-2.0.21-4.el7.x86_64.rpm 
+tar -xf zabbix-3.4.4.tar.gz
+cd zabbix-3.4.4/
+# ./configure --help
+./configure --prefix=/usr/local/zabbix  --enable-server   --enable-proxy   --enable-agent --with-mysql  --with-net-snmp  --with-libcurl
+make && make install 
+mysql -e 'create database zabbix character set utf8;'
+mysql -e "grant all on zabbix.* to zabbix@'localhost' identified by 'zabbix';"
+
+cd /root/lnmp_soft/zabbix-3.4.4/database/mysql
+mysql -uzabbix -pzabbix zabbix < schema.sql
+mysql -uzabbix -pzabbix zabbix < images.sql
+mysql -uzabbix -pzabbix zabbix < data.sql
+cd /root/lnmp_soft/zabbix-3.4.4/frontends/php/
+cp -r * /usr/local/nginx/html/
+chmod -R 777 /usr/local/nginx/html/*
+sed -i  's/^;date.timezone =/date.timezone = Asia\/Shanghai'/p /etc/php.ini
+sed -i 's/^max_execution_time = 30/max_execution_time = 300/' /etc/php.ini 
+sed -i 's/^post_max_size = 8M/post_max_size = 32M/' /etc/php.ini
+sed -i 's/^max_input_time = 60/max_input_time = 300/' /etc/php.ini
+systemctl restart php-fpm.service 
+sed -i 's/^# DBHost=lo/DBHost=lo/' /usr/local/zabbix/etc/zabbix_server.conf
+sed -i 's/# DBPassword=/DBPassword=zabbix/' /usr/local/zabbix/etc/zabbix_server.conf
+useradd -s /sbin/nologin zabbix
+sed -i 's/^Server=127.0.0.1/Server=127.0.0.1,192.168.2.5/' /usr/local/zabbix/etc/zabbix_agentd.conf
+ sed -i 's/^ServerActive=127.0.0.1/ServerActive=127.0.0.1,192.168.2.5/' /usr/local/zabbix/etc/zabbix_agentd.conf
+sed -i 's/^# UnsafeUserParameters=0/UnsafeUserParameters=1/' /usr/local/zabbix/etc/zabbix_agentd.conf
+
+
+
+
+
+
+
+
+
+
+
+
+

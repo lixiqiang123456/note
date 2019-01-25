@@ -1,0 +1,126 @@
+                                    SECURITY       
+
+                                      DAY 1
+ifconfig eth0 | awk '/inet /{print $2}'
+free | awk '/Mem/{print $2}'
+sed -n '$=' /etc/passwd
+echo ${#s}
+sed -i 's/ //g'  etc/mongodb.conf 
+sed -i 's/:/,/g'   /tmp/passwd
+awk 'END {print NR}' /etc/passwd
+grep -v  '^$' /etc/sudoers
+sed  's/#./ /g' /etc/sudoers
+
+grep -v '^#' /etc/login.defs
+chage -E 2020-12-15 lisi
+passwd -l lisi
+passwd -u lisi
+passwd -S lisi
+chattr +i /etc/passwd
+lsattr /etc/passwd
+cal
+ls -a /etc/skel/
+vim /etc/issue
+usermod -a -G admgrp tom
+cat /proc/cpuinfo   | grep -c process
+uname -r
+cat /etc/redhat-release 
+IDC
+PV
+rpm -e --nodeps  elinks
+elinks http://localhost
+mii-tool -r eth0
+grep -i 'setroubleshoot' /var/log/messages   | tail -1
+
+                                   DAY 2
+md5sum `ls`
+anon_upload_enable=YES
+ftp 192.168.4.254
+lcd /etc/
+put passwd
+qpm -qlp zip-3.0-1.el6.x86_64.rpm
+ifconfig eth0:1
+                                   DAY 3
+:99,312s/^/#/
+cat ~/.bash_history 
+vim ~/.viminfo 
+aide --init
+aide --check
+nmap  -p 80,21-22 -sS -n  176.130.5.0-254
+tcpdump  -i eth0 -c 2 -A -w /tmp/1.cap
+tcpdump -i eth0 -A    tcp port 21   and dst  host 192.168.4.5 -w /tmp/a.cap 
+tcpdump  -A -r /tmp/a.cap  | grep -i pass
+telnet  127.0.0.1 25
+cat /var/mail/panglj 
+systemctl restart dovecot
+ausearch   -k passwd_change -i
+auditctl -w /etc/group  -p wa -k passwd_change
+rpm -q httpd-tools
+curl -i -X HEAD http://192.168.4.51/
+vim ~/.mysql_history 
+auditctl  -w /usr/bin/mysqladmin  -p x -k mysql_change
+su  - tomcat   -c /usr/local/tomcat/bin/startup.sh 
+diff -aurN source1/ source2/
+patch  -p1 < ../source.patch
+                                  DAY 4
+find / -name ifcfg-eth0
+iptables -t filter -I INPUT -p tcp -s 0.0.0.0/0   -d 0.0.0.0/0 -j ACCEPT
+iptables -t filter   -I INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+arp -n
+iptables -A INPUT  -p icmp -m mac --mac-source 52:54:00:b0:13:7d -j DROP 
+iptables-save  > /etc/sysconfig/iptables
+systemctl restart NetworkManager
+route add default gw 192.168.2.52
+sysctl  -a | grep -i forward
+echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
+echo 1 > /proc/sys/net/ipv4/ip_forward
+tcpdump  -i eth0  -A -nn icmp 
+iptables -t nat -I  POSTROUTING  -p tcp --dport  80 -s 192.168.2.0/24 -j SNAT  --to-source 192.168.4.52
+netstat -antup | awk '/^tcp/{A[$NF]++}END{for(a in A)print A[a],a}'
+cat access.log |awk ‘($NF > 30){print $7}’|sort -n|uniq -c|sort -nr|head -20
+                                  DAY 5
+traceroute www.baidu.com
+iostat
+sed -i '20i  fastcgi_buffers 8 16k; \n  fastcgi_buffer_size 32k;  \n fastcgi_connect_timeout 300; \n  fastcgi_send_timeout 300;   \n  fastcgi_read_timeout 300; ' /usr/local/nginx/conf/nginx.conf
+ifconfig eth1 192.168.2.5
+sed -n  's/^;date.timezone =/date.timezone = Asia\/Shanghai'/p /etc/php.ini 
+find / -type d -name qemu
+                                  DAY 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

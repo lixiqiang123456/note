@@ -1,0 +1,168 @@
+                                      DAY3
+engines
+show engines\G;
+create table user (name char(29),password char(40) default 'x',uid int(5)auto_increment,gid int(5),fullname char(48),birth date NOT NULL,homedir char(59),shell char(39),primary key(uid));
+show variables like '%storage%';
+into
+load data infile "/mydata/user"
+into table user
+fields terminated by  ':';
+out
+select name,password from user 
+into outfile "/mydata/user1"
+fields terminated by ':'
+lines terminated by '\n';
+tables
+select name,password from t1;
+update t1 set name='jok' where age=19;
+delete from t1 where gid is null;
+match
+select name  from user where gid=uid;
+select * from user  where id <= 5;
+select * from user where name!='tom';
+select * from user where name is  not null;
+select * from user where name='lisi' and gid=1000;
+select * from user where name='tom' or gid=10;
+select name,uid from user where uid between 10 and 30;
+select name from user where name in ('root','amd','apache');
+select distinct shell from user;
+select name from user where name like '___';
+select name from user where name like '%y';
+select name from user where name like '_%_';
+select uid,name from user where uid regexp '^...$';
+select * from user where name regexp '^j|y$';
+select name,uid,gid, (uid+gid)/2 as he from user where id<=10;
+select * from user where uid%2 = 0;
+update user set uid=uid+1 where uid<=3;
+select count(*) from user where id<=5;
+select avg(uid) from user where id<=5;
+select sum(uid) from user where uid<=5;
+select min(uid) from user where uid<=5;
+select max(uid) from user where uid<=5;
+select name,uid from user  where uid>=10 order by uid desc;
+select shell from user group by shell;
+select count(shell), shell from user group by shell;
+select * from user having shell='/bin/bash';
+select name,uid from user where id<=10 limit 0,1;
+select * from user where id<=10 limit 5;
+                                   DAY4
+create table a select * from user where 1=2;
+select * from t1,t2;
+select t1.*,t2.name,t2.uid  from t1,t2;
+select t1.name,t2.name,t1.uid,t2.uid from t1,t2 where t1.uid=t2.uid;
+select name from user where name in (select user from mysql.user where host='localhost');
+select name,uid from user where uid > ( select avg(uid) from user);
+select * from t1 left join t3 on t1.name=t3.name;
+grant
+skip-grant-tables
+show variables like '%password%';
+validate_password_policy=0
+validate_password_length=6
+select password(123);
+update mysql.user set authentication_string=password('123456') where user='root' and host='localhost';
+flush privileges;
+mysql -h192.168.4.50 -uroot -p'123456'
+mysqladmin  -uroot -p password '123456'
+grant all on *.* to mydba@'%' identified by '123456' with grant option;
+show grants for mydba@'%';
+show grants;
+select user();
+select user,host from mysql.user;
+set password = password('123456')
+set password for mydba@'%'=password('123456');
+show grants for mydba@'%;
+select * from mysql.user where user='mydba';
+revoke grant option on *.* from mydba@'%';
+revoke delete on *.* from mydba@'%';
+revoke all on *.* from mydba@'%';
+delete from mysql.user where user= 'mydba' and host='%';
+flush privileges;
+                          DAY 5
+mysqldump -uroot -pabc123 -A > /root/dba.sql
+mysqldump -uroot -pabc123 dba < /root/dba.sql
+mysqldump -p -B db db3 > /root/db2.sql
+mysql -p nsd < nsd.sql
+log_bin=/logdir/lxq
+server_id=50
+binlog_format=mixed
+mkdir /logdir 
+chown mysql  /logdir 
+show master status;
+flush logs;
+mysql -uroot -p' ' -e 'flush logs'
+purge master logs to "lxq.000005"
+reset master;
+mysqlbinlog  lxq.000001 | grep -i insert
+mysqldump -uroot -p' ' userdb user> /bakdir/user.sql
+mysql -uroot -p' ' userdb < /bakdir/user.sql
+mysqlbinlog /logdir/lxq.000002 --start-position=906 --stop-position=1060 | mysql -uroot -p' '
+innobackupex  --user=root --password=abc123   /fullbak  --no-timestamp
+#innobackupex --user=root --password=' '  /fullbak --apply-log --redo-only --incremental-dir='/new'
+#nnobackupex --user=root --password=' ' --copy-back /fullbak
+                               DAY 1
+show master status;
+grant replication slave on *.* to relpuser@'192.168.4.%' identified by '123456';
+select user,host from mysql.user;
+show slave status;
+change master to master_host='192.168.4.51',
+    -> master_user='repluser',
+    -> master_password='123456',
+    -> master_log_file='master51.000001',
+    -> master_log_pos=451;
+mysql -h192.168.4.51 -urepluser -p123456
+alter user user() identified by '123456';
+update mysql.user set authentication_string=password('123456') where user='root' and host='localhost';
+ INSTALL PLUGIN rpl_semi_sync_master   SONAME   'semisync_master.so';
+                          DAY2
+ssh-keygen
+ssh-copy-id 192.168.4.50
+for i in 10  11  12 ;do   echo i   ;done
+for i in {10 12  14} ;do   echo 1 ;done
+threads=auto
+[server1]
+ address=192.168.4.53
+                             DAY 3
+ssh-keygen -N '' -f /root/.ssh/id_rsa ; for i in 51 52 53 54 55 56 ;do ssh-copy-id 192.168.4.$i ; done
+show grants for root@'%';
+rm -rf mater.info relay-log.info   54a-relay-bin*
+yum -y install /root/mha-soft-student/*.rpm
+select @@hostname;
+                            DAY 4
+delimiter //
+create procedure say() begin select count(*) from db9.user; end//
+select name into @usernae from db9.user where name='root' and uid=0;
+ create procedure a () begin  declare j int default 9; declare b char(5); set b='bob'; select j,b; end//
+
+
+delimiter //
+create procedure db9.a(in line int)
+begin
+if line < 10 then
+select * from db9.user where id<line;
+else
+select * from db9.user where id=line;
+end if;
+end//
+
+
+
+delimiter //
+create  procedure db9.a()
+begin
+declare x int default 1;
+declare y int default 2;
+while 1<=6 do
+select x;
+set x = x+1;
+end while ;
+end//
+delimiter ;
+                      DAY 5
+sed -i '56,71d' schema.xml 
+export PATH=/etc/init.d:$PATH
+
+
+
+
+
+

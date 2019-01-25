@@ -1,0 +1,85 @@
+			svn
+####################################################
+一、安装subversion软件
+二、创建svn库目录
+    svnadmin  create  版本库路径	(创建时指定目录名，自动创建)
+    创建后会生成svn相关文件和目录:conf  db  format  hooks  locks  README.txt
+三、导入初始数据
+    svn import . file://版本库绝对路径  -m "自定义描述" ("."代表当前路径)
+四、cd 到版本库的目录下,修改conf目录下的配置文件
+	authz          passwd         svnserve.conf  (三个都要修改)
+五、svnserve.conf文件：
+	anon-access = none	(匿名用户设置为无权限)
+	auth-access = write	（经过认证的用户有写权限）
+	password-db = passwd	(指定密码文件名，相对路径)
+	authz-db = authz	(指定acl访问控制文件，相对路径)
+    passwd文件：
+	用户名 = 密码		（设置用于认证的用户名和密码）
+	...
+    authz文件：
+	[/]
+	用户名 = 权限	（用户名和passwd中设置的对应，权限有r w 可读可写）
+	...
+六、启动服务
+	svnserve -d -r 版本库绝对路径	（-d 表示后台运行,-r 指定版本库目录）
+	ss -ntulp | grep svnserve 	 (默认占用3690端口)
+
+
+七、取出版本库内容
+   svn --username 用户名 --password 密码 co svn://服务器地址/ 存放文件的目录名
+八、相关命令作用
+
+
+svn ci -m "描述"		提交自己修改后的数据
+svn update			把版本库的数据同步到当前工作目录
+svn info svn://服务器地址	查看版本库服务器基本信息	
+svn log svn://服务器地址	查看版本库日志文件
+svn diff			查看本地目录和版本库的所有文件的差异
+svn diff 文件名			只查看某一个指定文件的差异
+svn cat svn://服务器地址/文件名 查看服务器上的某个文件内容
+注意：对于新增的目录或文件，必须先加入版本控制才能提交
+    文件：svn add 新增文件名
+    目录：svn mkdir 新增目录
+    svn ci -m "描述"
+svn rm 文件名			使用svn删除文件
+svn revert 文件名		还原指定文件
+#####
+
+svn merge -r原版本:指定版本 指定文件 把指定文件从原版本还原到指定版本
+svnadmin dump 版本库目录 > 指定文件  对版本库的所有版本进行备份
+svnadmin load 版本库目录 < 备份文件  把备份的数据还原到版本库
+############################################################################3
+RPM打包
+       yum -y install  rpm-build
+	 rpmbuild -ba nginx.spec		#nginx.spec不存在,为了生成目录/root/rpmbuild和子目录
+	cp 源码包	/root/rpmbuild/SOURCES/	
+	vim /root/rpmbuild/SPECS/nginx.spec 
+
+Name:nginx        
+Version:1.12.2
+Release:    10
+Summary: Nginx is a web server software.    	#描述
+License:GPL    
+URL:    www.test.com    
+Source0:nginx-1.12.2.tar.gz
+#BuildRequires:    
+#Requires:    
+%description
+nginx [engine x] is an HTTP and reverse proxy server.	#详细描述
+%post
+useradd nginx                       //非必需操作：安装后脚本(创建账户)
+%prep
+%setup –q                            //自动解压源码包，并cd进入目录
+%build
+./configure --user=nginx --greoup=nginx		#配置命令，可以顺便加载模块
+make %{?_smp_mflags}
+%install
+make install DESTDIR=%{buildroot}
+cp /root/rpmbuild/SPECS/nginx.sh %{buildroot}/usr/local/nginx/    
+##注意，cp非必须操作，注意，这里是将一个脚本拷贝到安装目录，必须提前准备该文件
+%files
+%doc
+/usr/local/nginx/*            //对哪些文件与目录打包
+%changelog
+
+修改完文件后	rpmbuild -ba /root/rpmbuild/SPECS/nginx.spec	&& ls /root/rpmbuild/RPMS/x86_64/

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#clone-auto7   
+read -p "您要改哪台机子:" number
+
+a=$[number-1]
+
+virsh start rh7_node$number
+
+
+#for i in $a
+#do
+expect << EOF
+
+spawn    virsh console rh7_node$number
+expect  " "                   {send "\n"}
+expect    "localhost login"  {send "root\n"}
+expect   "密码"   {send "123456\n"} 
+expect   "~]#"      {send "nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.4.5$a/24 connection.autoconnect yes\n"}
+expect    "~]#"   {send "nmcli connection up eth0\n"}
+expect  "~]#"     {send "sed -i '1c $a.example.com' /etc/hostname\n"}
+expect  "~]#"     {send "hostname $a\n"}
+expect  "~]#"     {send "touch /etc/yum.repos.d/rhel7.repo\n"}
+expect  "~]#"     {send "touch /etc/yum.repos.d/rhel7.repo\n"}
+
+
+
+EOF
+#done 
+
+
+
+ssh-copy-id 192.168.4.5$a
+scp /etc/yum.repos.d/*.repo   192.168.4.5$a:/etc/yum.repos.d/
+#scp -r  /share/*      192.168.4.5$a:/root
+
+
